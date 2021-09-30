@@ -9,6 +9,42 @@ Incantation at the top of each file:
    #-}
 ```
 
+Haskell gives a lot of ways to write the same definition.
+```Haskell
+-- clunky
+foldr f z (x : xs) = x `f` foldr f z xs
+foldr _ z _        = z
+
+foldr f z xs = case xs of
+   x : xs' -> x `f` foldr f z xs'
+   _       -> z
+
+foldr f z = loop
+   where
+      loop (x : xs) = x `f` loop xs
+      loop _        = z
+      
+      loop xs = case xs of
+         x : xs' -> x `f` loop xs
+         _       -> z
+      
+      -- LambdaCase
+      loop = \case
+         x : xs -> x `f` loop xs
+         _      -> z
+
+      -- PatternGuards (Haskell2010)
+      loop xs
+         | x : xs' <- xs  -> x `f` loop xs'
+         | otherwise      -> z
+
+      -- PatternGuards and MultiWayIf
+      loop xs = if
+         | x : xs' <- xs  -> x `f` loop xs'
+         | otherwise      -> z
+         
+```
+
 Sometimes combining MultiWayIf with PatternGuards can lead to a more consistent style. Sometimes it can be ugly. Below are some examples where it's locally equivalent or worse.
 ```Haskell
 if b
@@ -84,18 +120,4 @@ let u = f x in if
    -> v
    | z <- x
    -> u
-   
-
-foldr f z = loop
-   where
-      loop (x : xs) = x `f` loop xs
-      loop _        = z
-
--- vs
-
-foldr f z = loop
-   where
-      loop xs = if
-         | x : xs' <- xs  -> x `f` loop xs'
-         | otherwise      -> z
 ```
