@@ -84,4 +84,18 @@ let u = f x in if
    -> v
    | z <- x
    -> u
+   
+
+foldr f z = loop
+   where
+      loop (x : xs) = x `f` loop xs
+      loop _        = z
+
+-- vs
+
+foldr f z = loop
+   where
+      loop xs = if
+         | x : xs' <- xs  -> x `f` loop xs'
+         | otherwise      -> z
 ```
